@@ -7,11 +7,10 @@ import (
 )
 
 func main() {
-	var user model.User
-
+	user := model.NewUser("Morteza", "Rezaei")
 	user.FirstName = "Test"
 
-	user.NewModified(&user)
+	user.Modified(user)
 
 	fmt.Println(user.FirstName)
 	// value := 10

@@ -9,10 +9,17 @@ type User struct {
 	IsActive  bool
 }
 
-func (u *User) NewModified(user *User) {
+func (u *User) Modified(user *User) {
 	user.FirstName = "Morteza"
 }
-
+func NewUser(firstName string, lastName string, birthdate time.Time, isActive bool) User {
+	return User{
+		FirstName: firstName,
+		LastName:  lastName,
+		Birthdate: birthdate,
+		IsActive:  isActive,
+	}
+}
 func Deactive(user *User) {
 	user.IsActive = false
 }

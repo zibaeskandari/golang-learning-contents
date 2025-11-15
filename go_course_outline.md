@@ -125,4 +125,24 @@ func Test(value int) {
     value = 20
 }
 ```
-    
+### Session 2
+- why interface is a value type
+- customize error handling
+- in the code we have practice for panic and you should findout how if panics happened after codes how should be run
+
+```go
+defer func() {
+	if r := recover(); r != nil {
+		println("test")
+	}
+}()
+
+TestPanic()
+
+println("after panic")
+
+func TestPanic() {
+	println("before panic")
+	panic("test")
+}
+```

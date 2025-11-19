@@ -17,3 +17,9 @@ maximum score possible without breaking constraints.
 Before, I was assigning heaviest products to the top shelves. Now, because a new constraint has been issued, I've changed
 the shelves sorting based on their capacities not their orders. Now, heaviest products are assigned to the shelves with
 more capacities.
+
+# Edit 2
+Now, I am assigning products based on the available capacity of the shelves. If the remaining capacity of a shelf is higher
+than the capacity of the next shelf (shelves are sorted in descenidng order of capacity), it will be assigned to that shelf.
+If not, it will be assigned to the next shelf. This process is repeated for other products. Heavier products will find larger
+remaining capacities and reside there.

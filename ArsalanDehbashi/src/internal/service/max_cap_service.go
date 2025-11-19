@@ -26,10 +26,14 @@ func (s *maxCapService) CalculateMaxCap(products []model.Product, levels []model
 		placed := false
 		for j := range levels {
 			if levels[j].RemainingCap >= products[i].Weight {
-				products[i].Level = levels[j].Order
-				levels[j].RemainingCap -= products[i].Weight
-				placed = true
-				break
+				if j == len(levels)-1 || levels[j].RemainingCap >= levels[j+1].RemainingCap {
+					products[i].Level = levels[j].Order
+					levels[j].RemainingCap -= products[i].Weight
+					placed = true
+					break
+				}
+
+				continue
 			}
 		}
 

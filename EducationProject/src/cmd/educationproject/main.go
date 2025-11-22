@@ -1,8 +1,9 @@
 package main
 
 import (
-	"errors"
 	"fmt"
+	"runtime"
+	"sync"
 )
 
 // import "fmt"
@@ -12,17 +13,112 @@ import (
 // 	"time"
 // )
 
-var errorNotFoundFile = errors.New("I cannot find file")
+// var errorNotFoundFile = errors.New("I cannot find file")
+func fanIn(ch1, ch2 <-chan int) <-chan int {
+	out := make(chan int)
+
+	go func() {
+		for {
+			select {
+			case v, ok := <-ch1:
+				if !ok {
+					ch1 = nil // disable this case
+					continue
+				}
+				out <- v
+
+			case v, ok := <-ch2:
+				if !ok {
+					ch2 = nil // disable this case
+					continue
+				}
+				out <- v
+			}
+
+			// stop when both are nil → dead channel
+			if ch1 == nil && ch2 == nil {
+				close(out)
+				return
+			}
+		}
+	}()
+
+	return out
+}
 
 func main() {
+	//------------- your practice
+	// ch1 := make(chan int)
+	// ch2 := make(chan int)
 
-	serTest := Service()
+	// // sender 1
+	// go func() {
+	// 	for i := 0; i < 5; i++ {
+	// 		ch1 <- i
+	// 		time.Sleep(200 * time.Millisecond)
+	// 	}
+	// 	close(ch1)
+	// }()
 
-	inner := errors.Unwrap(serTest)
-	fmt.Println(inner)
-	if errors.Is(serTest, errorNotFoundFile) {
-		fmt.Println("Not found file")
-	}
+	// // sender 2
+	// go func() {
+	// 	for i := 100; i < 105; i++ {
+	// 		ch2 <- i
+	// 		time.Sleep(350 * time.Millisecond)
+	// 	}
+	// 	close(ch2)
+	// }()
+
+	// // merged output
+	// out := fanIn(ch1, ch2)
+
+	// // consumer
+	// for v := range out {
+	// 	fmt.Println("Received:", v)
+	// }
+
+	//------------- your practice
+
+	// file, err := os.Create("tracing.out")
+
+	// if err != nil {
+	// 	println("it has some error")
+	// }
+
+	// defer file.Close()
+
+	// trace.Start(file)
+	// var wg sync.WaitGroup
+	// ch := make(chan int, 1)
+	// for i := 0; i < 10; i++ {
+	// 	wg.Add(1)
+	// 	go func(i int) {
+	// 		defer wg.Done()
+	// 		println("Goroutine", i, "sending")
+	// 		ch <- i
+	// 		println("Goroutine", i, "sent")
+	// 	}(i)
+	// }
+
+	// go func() {
+	// 	wg.Wait()
+	// }()
+
+	// for i := 0; i < 10; i++ {
+	// 	val := <-ch
+	// 	println("Received", val)
+	// 	time.Sleep(500 * time.Millisecond)
+	// }
+
+	// defer trace.Stop()
+
+	// serTest := Service()
+
+	// inner := errors.Unwrap(serTest)
+	// fmt.Println(inner)
+	// if errors.Is(serTest, errorNotFoundFile) {
+	// 	fmt.Println("Not found file")
+	// }
 	// file, err := os.Open("../../data/testdata.csv")
 
 	// defer func() {
@@ -68,14 +164,29 @@ func main() {
 	// }
 
 	// fmt.Println("test is worst")
+	var wg sync.WaitGroup
+	wg.Add(2)
+	defer wg.Done()
+
+	go traceGoroutine(1)
+	go traceGoroutine(2)
+
+	wg.Wait()
 }
 
-func Service() error {
-	return fmt.Errorf("this is service error %w", Service2())
+func traceGoroutine(val int) {
+	runtime.LockOSThread() // Bind goroutine to current OS thread
+	defer runtime.UnlockOSThread()
+
+	fmt.Printf("Running on OS Thread:%d\n", val) // just for illustration
 }
-func Service2() error {
-	return errorNotFoundFile
-}
+
+// func Service() error {
+// 	return fmt.Errorf("this is service error %w", Service2())
+// }
+// func Service2() error {
+// 	return errorNotFoundFile
+// }
 
 // -------- why I could not run after panic
 
